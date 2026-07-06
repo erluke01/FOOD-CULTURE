@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-paper text-ink font-sans;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-terra text-white px-5 py-2.5 rounded-xl font-medium text-sm
+           hover:bg-terra-dark transition-colors duration-150 disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply bg-transparent border border-ink/20 text-ink px-4 py-2 rounded-xl
+           text-sm hover:bg-ink/5 transition-colors duration-150;
+  }
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-paper-dark;
+  }
+  .tag-pill {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs
+           font-medium bg-paper-dark text-ink-light;
+  }
+  .input {
+    @apply w-full border border-ink/15 rounded-xl px-3.5 py-2.5 text-sm
+           bg-white focus:outline-none focus:ring-2 focus:ring-terra/30
+           focus:border-terra transition-all;
+  }
+  .star-score {
+    @apply font-display font-semibold text-terra;
+  }
+}
+
+/* Leaflet pin overrides */
+.leaflet-marker-icon { border: none !important; background: none !important; }
+.custom-marker {
+  width: 36px; height: 36px;
+  background: #C45C26; border: 3px solid white;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+.custom-marker.visit { background: #5C7A5C; }
+.custom-marker-inner {
+  transform: rotate(45deg);
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+  font-size: 14px; margin-top: -4px;
+}
