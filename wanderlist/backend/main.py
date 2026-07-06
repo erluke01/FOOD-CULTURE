@@ -9,7 +9,7 @@ app = FastAPI(title="Wanderlist API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=["*"],  # accetta app Flutter in LAN
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -53,15 +53,19 @@ def init_db():
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS cities (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL,
+            sync_id TEXT UNIQUE,
+            name TEXT NOT NULL,
             country TEXT,
             lat REAL,
             lng REAL,
-            created_at TEXT DEFAULT (datetime('now'))
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now')),
+            is_deleted INTEGER DEFAULT 0
         );
 
         CREATE TABLE IF NOT EXISTS places (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sync_id TEXT UNIQUE,
             city_id INTEGER NOT NULL REFERENCES cities(id),
             type TEXT NOT NULL CHECK(type IN ('food','visit')),
             name TEXT NOT NULL,
@@ -73,11 +77,14 @@ def init_db():
             date_visited TEXT,
             note TEXT,
             created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now')),
+            is_deleted INTEGER DEFAULT 0,
             created_by TEXT
         );
 
         CREATE TABLE IF NOT EXISTS ratings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sync_id TEXT UNIQUE,
             place_id INTEGER NOT NULL REFERENCES places(id) ON DELETE CASCADE,
             user TEXT NOT NULL,
             quality REAL,
@@ -87,7 +94,7 @@ def init_db():
             cleanliness REAL,
             beauty REAL,
             cost REAL,
-            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now')),
             UNIQUE(place_id, user)
         );
 
@@ -350,3 +357,118 @@ def me(credentials=Depends(security)):
     if not user:
         return {"user": None}
     return {"user": user["username"], "role": user["role"]}
+
+# ── Health ─────────────────────────────────────────────────────────────────
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+# ── Sync ───────────────────────────────────────────────────────────────────
+from typing import Any, Dict
+
+@app.post("/sync")
+def sync(body: Dict[str, Any], user=Depends(require_editor)):
+    """
+    Bidirezionale: il client manda tutti i suoi dati, il server
+    fa merge (last-write-wins su updated_at) e restituisce tutto.
+    """
+    conn = get_db()
+    now = __import__('datetime').datetime.utcnow().isoformat()
+
+    # ── Merge cities ──
+    for city in body.get("cities", []):
+        sync_id = city.get("sync_id")
+        if not sync_id:
+            continue
+        existing = conn.execute("SELECT updated_at FROM cities WHERE sync_id=?", (sync_id,)).fetchone()
+        if existing is None:
+            conn.execute(
+                "INSERT OR IGNORE INTO cities(sync_id,name,country,lat,lng,created_at,updated_at,is_deleted) "
+                "VALUES(?,?,?,?,?,?,?,?)",
+                (sync_id, city.get("name"), city.get("country"), city.get("lat"), city.get("lng"),
+                 city.get("created_at", now), city.get("updated_at", now), city.get("is_deleted", 0))
+            )
+        elif city.get("updated_at", "") > existing["updated_at"]:
+            conn.execute(
+                "UPDATE cities SET name=?,country=?,lat=?,lng=?,updated_at=?,is_deleted=? WHERE sync_id=?",
+                (city.get("name"), city.get("country"), city.get("lat"), city.get("lng"),
+                 city.get("updated_at", now), city.get("is_deleted", 0), sync_id)
+            )
+
+    # ── Merge places ──
+    for place in body.get("places", []):
+        sync_id = place.get("sync_id")
+        if not sync_id:
+            continue
+        # Resolve city_id via city's sync_id if needed
+        city_row = conn.execute("SELECT id FROM cities WHERE sync_id=?", (place.get("city_sync_id", ""),)).fetchone()
+        city_id = city_row["id"] if city_row else place.get("city_id")
+
+        existing = conn.execute("SELECT updated_at FROM places WHERE sync_id=?", (sync_id,)).fetchone()
+        if existing is None:
+            conn.execute(
+                "INSERT OR IGNORE INTO places(sync_id,city_id,type,name,address,category,tag,lat,lng,"
+                "date_visited,note,created_at,updated_at,is_deleted,created_by) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (sync_id, city_id, place.get("type"), place.get("name"), place.get("address"),
+                 place.get("category"), place.get("tag"), place.get("lat"), place.get("lng"),
+                 place.get("date_visited"), place.get("note"), place.get("created_at", now),
+                 place.get("updated_at", now), place.get("is_deleted", 0), place.get("created_by"))
+            )
+        elif place.get("updated_at", "") > existing["updated_at"]:
+            conn.execute(
+                "UPDATE places SET type=?,name=?,address=?,category=?,tag=?,lat=?,lng=?,"
+                "date_visited=?,note=?,updated_at=?,is_deleted=? WHERE sync_id=?",
+                (place.get("type"), place.get("name"), place.get("address"), place.get("category"),
+                 place.get("tag"), place.get("lat"), place.get("lng"), place.get("date_visited"),
+                 place.get("note"), place.get("updated_at", now), place.get("is_deleted", 0), sync_id)
+            )
+
+    # ── Merge ratings ──
+    for rating in body.get("ratings", []):
+        sync_id = rating.get("sync_id")
+        if not sync_id:
+            continue
+        existing = conn.execute("SELECT updated_at FROM ratings WHERE sync_id=?", (sync_id,)).fetchone()
+        # Resolve place_id via sync_id
+        place_row = conn.execute("SELECT id FROM places WHERE sync_id=?", (rating.get("place_sync_id", ""),)).fetchone()
+        place_id = place_row["id"] if place_row else rating.get("place_id")
+
+        if existing is None:
+            conn.execute(
+                "INSERT OR IGNORE INTO ratings(sync_id,place_id,user,quality,quantity,price,"
+                "service,cleanliness,beauty,cost,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                (sync_id, place_id, rating.get("user"), rating.get("quality"), rating.get("quantity"),
+                 rating.get("price"), rating.get("service"), rating.get("cleanliness"),
+                 rating.get("beauty"), rating.get("cost"), rating.get("updated_at", now))
+            )
+        elif rating.get("updated_at", "") > existing["updated_at"]:
+            conn.execute(
+                "UPDATE ratings SET quality=?,quantity=?,price=?,service=?,cleanliness=?,"
+                "beauty=?,cost=?,updated_at=? WHERE sync_id=?",
+                (rating.get("quality"), rating.get("quantity"), rating.get("price"),
+                 rating.get("service"), rating.get("cleanliness"), rating.get("beauty"),
+                 rating.get("cost"), rating.get("updated_at", now), sync_id)
+            )
+
+    # ── Merge favorites ──
+    for fav in body.get("favorites", []):
+        fav_user = fav.get("user")
+        place_id = fav.get("place_id")
+        if fav_user and place_id:
+            conn.execute(
+                "INSERT OR IGNORE INTO favorites(user,place_id,created_at) VALUES(?,?,?)",
+                (fav_user, place_id, fav.get("created_at", now))
+            )
+
+    conn.commit()
+
+    # ── Return all server data ──
+    result = {
+        "cities":    [dict(r) for r in conn.execute("SELECT * FROM cities").fetchall()],
+        "places":    [dict(r) for r in conn.execute("SELECT * FROM places").fetchall()],
+        "ratings":   [dict(r) for r in conn.execute("SELECT * FROM ratings").fetchall()],
+        "favorites": [dict(r) for r in conn.execute("SELECT * FROM favorites").fetchall()],
+    }
+    conn.close()
+    return result

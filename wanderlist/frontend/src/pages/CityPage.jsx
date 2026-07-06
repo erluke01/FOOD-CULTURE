@@ -9,7 +9,7 @@ import { Plus, Map, LayoutGrid, ChevronLeft, SlidersHorizontal, X } from 'lucide
 
 export default function CityPage() {
   const { cityId } = useParams()
-  const { user } = useAuth()
+  const { user, authHeader } = useAuth()
   const [city, setCity] = useState(null)
   const [places, setPlaces] = useState([])
   const [categories, setCategories] = useState([])
@@ -29,14 +29,14 @@ export default function CityPage() {
 
     Promise.all([
       apiFetch(`/cities`),
-      apiFetch(`/places?${q}`),
+      apiFetch(`/places?${q}`, {}, authHeader()),  // auth → is_favorite corretto
       apiFetch(`/categories?city_id=${cityId}`),
     ]).then(([cities, ps, cats]) => {
       setCity(cities.find(c => c.id === parseInt(cityId)))
       setPlaces(ps)
       setCategories(cats)
     }).finally(() => setLoading(false))
-  }, [cityId, filters])
+  }, [cityId, filters, authHeader])
 
   useEffect(() => { load() }, [load])
 
