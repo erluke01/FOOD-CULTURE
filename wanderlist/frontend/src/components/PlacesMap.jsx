@@ -41,17 +41,40 @@ export function PlacesMap({ places, center = [45.4654, 9.1859], zoom = 12 }) {
       <FitBounds places={withCoords} />
       {withCoords.map(place => (
         <Marker key={place.id} position={[place.lat, place.lng]} icon={makeIcon(place.type)}>
-          <Popup maxWidth={240} className="wanderlist-popup">
+          <Popup maxWidth={260} className="wanderlist-popup">
             <div className="font-sans p-1">
               <div className="font-semibold text-sm text-ink mb-0.5">{place.name}</div>
-              {place.category && (
-                <span className="inline-block text-xs bg-paper-dark px-2 py-0.5 rounded-full mb-1">{place.category}</span>
-              )}
+              <div className="flex flex-wrap gap-1 mb-1">
+                {place.category && (
+                  <span className="inline-block text-xs bg-paper-dark px-2 py-0.5 rounded-full">{place.category}</span>
+                )}
+                {place.tag && (
+                  <span className="inline-block text-xs bg-sky/10 text-sky px-2 py-0.5 rounded-full">{place.tag}</span>
+                )}
+              </div>
               {place.avg_score != null && (
                 <div className="mb-1"><StarDisplay score={place.avg_score} /></div>
               )}
               {place.address && (
-                <p className="text-xs text-ink/50 mb-2">{place.address}</p>
+                <p className="text-xs text-ink/50 mb-1.5">{place.address}</p>
+              )}
+              {(() => {
+                const lRating = place.ratings?.find(r => r.user === 'luchino')
+                const aRating = place.ratings?.find(r => r.user === 'alix')
+                if (!lRating && !aRating) return null
+                return (
+                  <div className="flex gap-3 text-xs mb-1.5 pb-1.5 border-b border-paper-dark">
+                    {lRating?.avg != null && (
+                      <div className="flex items-center gap-1 text-sky">🧑 <StarDisplay score={lRating.avg} /></div>
+                    )}
+                    {aRating?.avg != null && (
+                      <div className="flex items-center gap-1 text-terra-light">👩 <StarDisplay score={aRating.avg} /></div>
+                    )}
+                  </div>
+                )
+              })()}
+              {place.note && (
+                <p className="text-xs text-ink/60 italic mb-2 line-clamp-2">"{place.note}"</p>
               )}
               <div className="flex gap-2">
                 <Link to={`/places/${place.id}`}

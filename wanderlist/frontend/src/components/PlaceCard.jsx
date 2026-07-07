@@ -5,6 +5,19 @@ import { useAuth } from '../context/AuthContext'
 import { apiFetch } from '../utils/api'
 import { useState } from 'react'
 
+export function PlaceCardSkeleton() {
+  return (
+    <div className="card overflow-hidden">
+      <div className="h-1.5 skeleton rounded-none" />
+      <div className="p-4 space-y-2">
+        <div className="skeleton h-4 w-1/3" />
+        <div className="skeleton h-5 w-2/3" />
+        <div className="skeleton h-3 w-1/2" />
+      </div>
+    </div>
+  )
+}
+
 export function PlaceCard({ place, onFavToggle }) {
   const { user, authHeader } = useAuth()
   const [fav, setFav] = useState(place.is_favorite)
@@ -27,7 +40,7 @@ export function PlaceCard({ place, onFavToggle }) {
   const aRating = place.ratings?.find(r => r.user === 'alix')
 
   return (
-    <Link to={`/places/${place.id}`} className="card block hover:shadow-md transition-shadow duration-200 overflow-hidden group">
+    <Link to={`/places/${place.id}`} className="card card-interactive block overflow-hidden group">
       <div className={`h-1.5 ${place.type === 'food' ? 'bg-terra' : 'bg-sage'}`} />
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { apiFetch } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
-import { PlaceCard } from '../components/PlaceCard'
+import { PlaceCard, PlaceCardSkeleton } from '../components/PlaceCard'
 import { PlacesMap } from '../components/PlacesMap'
 import { PlaceForm } from '../components/PlaceForm'
 import { Plus, Map, LayoutGrid, ChevronLeft, SlidersHorizontal, X } from 'lucide-react'
@@ -78,8 +78,8 @@ export default function CityPage() {
                   </span>
                 )}
               </button>
-              {user?.role === 'editor' && (
-                <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-1.5">
+              {user?.role === 'master' && (
+                <button onClick={() => setShowForm(true)} className="btn-primary hidden sm:flex items-center gap-1.5">
                   <Plus size={15} /> Aggiungi
                 </button>
               )}
@@ -127,7 +127,11 @@ export default function CityPage() {
 
       {/* Content */}
       {loading ? (
-        <div className="text-center py-16 text-ink/30">Caricamento…</div>
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => <PlaceCardSkeleton key={i} />)}
+          </div>
+        </div>
       ) : view === 'map' ? (
         <div className="h-[calc(100vh-160px)]">
           <PlacesMap places={places} />
@@ -137,7 +141,7 @@ export default function CityPage() {
           {places.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-ink/40">Nessun posto trovato.</p>
-              {user?.role === 'editor' && !activeFilters && (
+              {user?.role === 'master' && !activeFilters && (
                 <button onClick={() => setShowForm(true)} className="btn-primary mt-4">
                   Aggiungi il primo posto
                 </button>
@@ -156,9 +160,17 @@ export default function CityPage() {
         </div>
       )}
 
+      {user?.role === 'master' && !showForm && (
+        <button onClick={() => setShowForm(true)} className="fab sm:hidden" aria-label="Aggiungi posto">
+          <Plus size={22} />
+        </button>
+      )}
+
       {showForm && (
         <PlaceForm
           cityId={parseInt(cityId)}
+          cityPlaces={places}
+          cityName={city?.name}
           onSave={() => { setShowForm(false); load() }}
           onClose={() => setShowForm(false)}
         />

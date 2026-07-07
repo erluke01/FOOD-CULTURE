@@ -33,7 +33,7 @@ function RatingBlock({ place, user, authHeader, onUpdate }) {
     } catch {} finally { setSaving(false) }
   }
 
-  if (!user || user.role !== 'editor') return null
+  if (!user || user.role !== 'master') return null
 
   const label = user.username === 'luchino' ? '🧑 Il tuo voto (Luchino)' : '👩 Il tuo voto (Alix)'
 
@@ -92,7 +92,19 @@ export default function PlaceDetail() {
     setFav(!fav)
   }
 
-  if (loading) return <div className="text-center py-20 text-ink/30">Caricamento…</div>
+  if (loading) return (
+    <div className="max-w-3xl mx-auto px-4 py-8 space-y-5">
+      <div className="skeleton h-4 w-24" />
+      <div className="card overflow-hidden">
+        <div className="h-2 skeleton rounded-none" />
+        <div className="p-6 space-y-3">
+          <div className="skeleton h-8 w-2/3" />
+          <div className="skeleton h-4 w-1/3" />
+        </div>
+      </div>
+      <div className="skeleton h-40 w-full rounded-2xl" />
+    </div>
+  )
   if (!place) return <div className="text-center py-20">Posto non trovato</div>
 
   const lRating = place.ratings?.find(r => r.user === 'luchino')
@@ -148,7 +160,7 @@ export default function PlaceDetail() {
                     <Navigation size={14} /> Indicazioni
                   </a>
                 )}
-                {user?.role === 'editor' && (
+                {user?.role === 'master' && (
                   <>
                     <button onClick={() => setEditing(true)}
                       className="p-2 rounded-xl border border-ink/15 text-ink/60 hover:bg-paper transition-colors">

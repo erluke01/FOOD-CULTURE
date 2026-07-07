@@ -3,8 +3,17 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     @apply bg-paper text-ink font-sans;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 }
 
@@ -32,6 +41,41 @@
   .star-score {
     @apply font-display font-semibold text-terra;
   }
+  .card-interactive {
+    @apply transition-all duration-150 active:scale-[0.98] hover:shadow-md hover:-translate-y-0.5;
+  }
+  .fab {
+    @apply fixed z-30 w-14 h-14 rounded-full bg-terra text-white shadow-lg shadow-terra/30
+           flex items-center justify-center hover:bg-terra-dark active:scale-90
+           transition-all duration-150;
+    /* clears the fixed mobile tab bar (~60px) plus a gap; tab bar is sm:hidden too */
+    bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    right: 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .fab { bottom: calc(1.5rem + env(safe-area-inset-bottom)); }
+  }
+  .skeleton {
+    @apply animate-pulse bg-ink/10 rounded-lg;
+  }
+}
+
+@layer utilities {
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes sheet-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .animate-fade-in { animation: fade-in 0.18s ease-out; }
+  .animate-sheet-up { animation: sheet-up 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
+  .animate-pop-in { animation: pop-in 0.18s ease-out; }
 }
 
 /* Leaflet pin overrides */

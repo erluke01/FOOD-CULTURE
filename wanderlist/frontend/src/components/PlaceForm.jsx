@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { StarInput } from './StarRating'
+import { LocationPicker } from './LocationPicker'
 import { apiFetch } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
 import { X } from 'lucide-react'
@@ -7,7 +8,15 @@ import { X } from 'lucide-react'
 const FOOD_TAGS = ['Colazione','Brunch','Pranzo','Pranzo veloce','Merenda','Aperitivo','Cena','Dopocena']
 const VISIT_CATS = ['Musei','Chiese','Monumenti','Spiagge','Piscine','Eventi','Borgo']
 
-export function PlaceForm({ cityId, place, onSave, onClose }) {
+function cityCenter(places) {
+  const withCoords = (places || []).filter(p => p.lat && p.lng)
+  if (!withCoords.length) return undefined
+  const lat = withCoords.reduce((s, p) => s + p.lat, 0) / withCoords.length
+  const lng = withCoords.reduce((s, p) => s + p.lng, 0) / withCoords.length
+  return [lat, lng]
+}
+
+export function PlaceForm({ cityId, place, cityPlaces, cityName, onSave, onClose }) {
   const { authHeader, user } = useAuth()
   const editing = !!place
 
@@ -70,8 +79,8 @@ export function PlaceForm({ cityId, place, onSave, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
+      <div className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto shadow-xl animate-sheet-up sm:animate-pop-in">
         <div className="sticky top-0 bg-white border-b border-paper-dark px-5 py-4 flex items-center justify-between">
           <h2 className="font-display font-semibold text-lg">
             {editing ? 'Modifica posto' : 'Aggiungi posto'}
@@ -103,18 +112,13 @@ export function PlaceForm({ cityId, place, onSave, onClose }) {
               onChange={e => set('address', e.target.value)} placeholder="Via Roma 1" />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-medium text-ink/60 mb-1 block">Latitudine</label>
-              <input className="input" type="number" step="any" value={form.lat}
-                onChange={e => set('lat', e.target.value)} placeholder="45.4654" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-ink/60 mb-1 block">Longitudine</label>
-              <input className="input" type="number" step="any" value={form.lng}
-                onChange={e => set('lng', e.target.value)} placeholder="9.1859" />
-            </div>
-          </div>
+          <LocationPicker
+            lat={form.lat}
+            lng={form.lng}
+            defaultCenter={cityCenter(cityPlaces)}
+            cityName={cityName}
+            onChange={(la, ln) => setForm(f => ({ ...f, lat: la, lng: ln }))}
+          />
 
           {form.type === 'food' ? (
             <>

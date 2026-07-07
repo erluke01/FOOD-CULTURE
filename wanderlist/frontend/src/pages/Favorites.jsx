@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { apiFetch } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
-import { PlaceCard } from '../components/PlaceCard'
+import { PlaceCard, PlaceCardSkeleton } from '../components/PlaceCard'
 import { ChevronLeft, Heart } from 'lucide-react'
 
 export default function Favorites() {
@@ -29,7 +29,9 @@ export default function Favorites() {
       </div>
 
       {loading ? (
-        <div className="text-center py-16 text-ink/30">Caricamento…</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, i) => <PlaceCardSkeleton key={i} />)}
+        </div>
       ) : places.length === 0 ? (
         <div className="text-center py-16">
           <Heart size={36} className="mx-auto text-ink/15 mb-3" />
