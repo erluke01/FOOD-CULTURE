@@ -93,7 +93,7 @@ export async function apiFetch(path, options = {}, authHeader = {}) {
       if (query.city_id) places = places.filter(p => p.city_id === parseInt(query.city_id))
       if (query.type)    places = places.filter(p => p.type === query.type)
       if (query.category) places = places.filter(p => p.category === query.category)
-      if (query.tag)     places = places.filter(p => p.tag === query.tag)
+      if (query.tag)     places = places.filter(p => (p.tags || []).includes(query.tag))
 
       const enriched = await Promise.all(places.map(p => placeWithRatings(p, currentUser)))
       enriched.sort((a, b) => {

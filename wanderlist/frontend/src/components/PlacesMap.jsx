@@ -48,12 +48,12 @@ export function PlacesMap({ places, center = [45.4654, 9.1859], zoom = 12 }) {
                 {place.category && (
                   <span className="inline-block text-xs bg-paper-dark px-2 py-0.5 rounded-full">{place.category}</span>
                 )}
-                {place.tag && (
-                  <span className="inline-block text-xs bg-sky/10 text-sky px-2 py-0.5 rounded-full">{place.tag}</span>
-                )}
+                {place.tags?.map(t => (
+                  <span key={t} className="inline-block text-xs bg-sky/10 text-sky px-2 py-0.5 rounded-full">{t}</span>
+                ))}
               </div>
               {place.avg_score != null && (
-                <div className="mb-1"><StarDisplay score={place.avg_score} /></div>
+                <div className="mb-1"><StarDisplay score={place.avg_score} type={place.type} /></div>
               )}
               {place.address && (
                 <p className="text-xs text-ink/50 mb-1.5">{place.address}</p>
@@ -65,10 +65,10 @@ export function PlacesMap({ places, center = [45.4654, 9.1859], zoom = 12 }) {
                 return (
                   <div className="flex gap-3 text-xs mb-1.5 pb-1.5 border-b border-paper-dark">
                     {lRating?.avg != null && (
-                      <div className="flex items-center gap-1 text-sky">🧑 <StarDisplay score={lRating.avg} /></div>
+                      <div className="flex items-center gap-1 text-sky">🧑 <StarDisplay score={lRating.avg} type={place.type} /></div>
                     )}
                     {aRating?.avg != null && (
-                      <div className="flex items-center gap-1 text-terra-light">👩 <StarDisplay score={aRating.avg} /></div>
+                      <div className="flex items-center gap-1 text-terra-light">👩 <StarDisplay score={aRating.avg} type={place.type} /></div>
                     )}
                   </div>
                 )

@@ -42,16 +42,16 @@ function RatingBlock({ place, user, authHeader, onUpdate }) {
       <h3 className="font-semibold text-sm mb-4">{label}</h3>
       {place.type === 'food' ? (
         <div className="grid grid-cols-2 gap-3">
-          <StarInput label="Qualità" value={rating.quality} onChange={v => setRating(r => ({...r, quality: v}))} />
-          <StarInput label="Quantità" value={rating.quantity} onChange={v => setRating(r => ({...r, quantity: v}))} />
-          <StarInput label="Prezzo" value={rating.price} onChange={v => setRating(r => ({...r, price: v}))} />
-          <StarInput label="Servizio" value={rating.service} onChange={v => setRating(r => ({...r, service: v}))} />
-          <StarInput label="Pulizia" value={rating.cleanliness} onChange={v => setRating(r => ({...r, cleanliness: v}))} />
+          <StarInput type="food" label="Qualità" value={rating.quality} onChange={v => setRating(r => ({...r, quality: v}))} />
+          <StarInput type="food" label="Quantità" value={rating.quantity} onChange={v => setRating(r => ({...r, quantity: v}))} />
+          <StarInput type="food" label="Prezzo" value={rating.price} onChange={v => setRating(r => ({...r, price: v}))} />
+          <StarInput type="food" label="Servizio" value={rating.service} onChange={v => setRating(r => ({...r, service: v}))} />
+          <StarInput type="food" label="Pulizia" value={rating.cleanliness} onChange={v => setRating(r => ({...r, cleanliness: v}))} />
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
-          <StarInput label="Bellezza" value={rating.beauty} onChange={v => setRating(r => ({...r, beauty: v}))} />
-          <StarInput label="Costo" value={rating.cost} onChange={v => setRating(r => ({...r, cost: v}))} />
+          <StarInput type="visit" label="Bellezza" value={rating.beauty} onChange={v => setRating(r => ({...r, beauty: v}))} />
+          <StarInput type="visit" label="Costo" value={rating.cost} onChange={v => setRating(r => ({...r, cost: v}))} />
         </div>
       )}
       <button onClick={save} disabled={saving} className="btn-primary mt-4 w-full">
@@ -125,7 +125,9 @@ export default function PlaceDetail() {
             <div className="flex-1">
               <div className="flex flex-wrap gap-2 mb-2">
                 {place.category && <span className="tag-pill">{place.category}</span>}
-                {place.tag && <span className="tag-pill bg-sky/10 text-sky">{place.tag}</span>}
+                {place.tags?.map(t => (
+                  <span key={t} className="tag-pill bg-sky/10 text-sky">{t}</span>
+                ))}
               </div>
               <h1 className="font-display text-3xl font-semibold leading-tight">{place.name}</h1>
               {place.address && (
@@ -194,12 +196,12 @@ export default function PlaceDetail() {
                 {[['Qualità', r.quality],['Quantità', r.quantity],['Prezzo', r.price],['Servizio', r.service],['Pulizia', r.cleanliness]].map(([k, v]) => (
                   <div key={k} className="flex justify-between items-center">
                     <span className="text-ink/60">{k}</span>
-                    <StarDisplay score={v} />
+                    <StarDisplay score={v} type="food" />
                   </div>
                 ))}
                 <div className="pt-2 border-t border-paper-dark flex justify-between items-center font-semibold">
                   <span>Media</span>
-                  <StarDisplay score={r.avg} size="md" />
+                  <StarDisplay score={r.avg} size="md" type="food" />
                 </div>
               </div>
             ) : (
@@ -207,12 +209,12 @@ export default function PlaceDetail() {
                 {[['Bellezza', r.beauty],['Costo', r.cost]].map(([k, v]) => (
                   <div key={k} className="flex justify-between items-center">
                     <span className="text-ink/60">{k}</span>
-                    <StarDisplay score={v} />
+                    <StarDisplay score={v} type="visit" />
                   </div>
                 ))}
                 <div className="pt-2 border-t border-paper-dark flex justify-between items-center font-semibold">
                   <span>Media</span>
-                  <StarDisplay score={r.avg} size="md" />
+                  <StarDisplay score={r.avg} size="md" type="visit" />
                 </div>
               </div>
             )}

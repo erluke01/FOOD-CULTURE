@@ -25,7 +25,7 @@ export function PlaceForm({ cityId, place, cityPlaces, cityName, onSave, onClose
     name: place?.name ?? '',
     address: place?.address ?? '',
     category: place?.category ?? '',
-    tag: place?.tag ?? '',
+    tags: place?.tags ?? [],
     lat: place?.lat ?? '',
     lng: place?.lng ?? '',
     date_visited: place?.date_visited ?? '',
@@ -47,6 +47,10 @@ export function PlaceForm({ cityId, place, cityPlaces, cityName, onSave, onClose
   const [error, setError] = useState(null)
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+  const toggleTag = t => setForm(f => ({
+    ...f,
+    tags: f.tags.includes(t) ? f.tags.filter(x => x !== t) : [...f.tags, t],
+  }))
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -128,11 +132,21 @@ export function PlaceForm({ cityId, place, cityPlaces, cityName, onSave, onClose
                   onChange={e => set('category', e.target.value)} placeholder="es. Pizzeria, Wine Bar…" />
               </div>
               <div>
-                <label className="text-xs font-medium text-ink/60 mb-1 block">Tag momento</label>
-                <select className="input" value={form.tag} onChange={e => set('tag', e.target.value)}>
-                  <option value="">— Seleziona —</option>
-                  {FOOD_TAGS.map(t => <option key={t}>{t}</option>)}
-                </select>
+                <label className="text-xs font-medium text-ink/60 mb-1 block">
+                  Tag momento <span className="text-ink/35 font-normal">(scegline uno o più)</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {FOOD_TAGS.map(t => {
+                    const active = form.tags.includes(t)
+                    return (
+                      <button key={t} type="button" onClick={() => toggleTag(t)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                          active ? 'bg-terra text-white border-terra' : 'bg-white text-ink/60 border-ink/15 hover:bg-paper'}`}>
+                        {t}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
             </>
           ) : (
@@ -164,16 +178,16 @@ export function PlaceForm({ cityId, place, cityPlaces, cityName, onSave, onClose
             </h3>
             {form.type === 'food' ? (
               <div className="grid grid-cols-2 gap-3">
-                <StarInput label="Qualità" value={rating.quality} onChange={v => setRating(r => ({...r, quality: v}))} />
-                <StarInput label="Quantità" value={rating.quantity} onChange={v => setRating(r => ({...r, quantity: v}))} />
-                <StarInput label="Prezzo" value={rating.price} onChange={v => setRating(r => ({...r, price: v}))} />
-                <StarInput label="Servizio" value={rating.service} onChange={v => setRating(r => ({...r, service: v}))} />
-                <StarInput label="Pulizia" value={rating.cleanliness} onChange={v => setRating(r => ({...r, cleanliness: v}))} />
+                <StarInput type="food" label="Qualità" value={rating.quality} onChange={v => setRating(r => ({...r, quality: v}))} />
+                <StarInput type="food" label="Quantità" value={rating.quantity} onChange={v => setRating(r => ({...r, quantity: v}))} />
+                <StarInput type="food" label="Prezzo" value={rating.price} onChange={v => setRating(r => ({...r, price: v}))} />
+                <StarInput type="food" label="Servizio" value={rating.service} onChange={v => setRating(r => ({...r, service: v}))} />
+                <StarInput type="food" label="Pulizia" value={rating.cleanliness} onChange={v => setRating(r => ({...r, cleanliness: v}))} />
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">
-                <StarInput label="Bellezza" value={rating.beauty} onChange={v => setRating(r => ({...r, beauty: v}))} />
-                <StarInput label="Costo" value={rating.cost} onChange={v => setRating(r => ({...r, cost: v}))} />
+                <StarInput type="visit" label="Bellezza" value={rating.beauty} onChange={v => setRating(r => ({...r, beauty: v}))} />
+                <StarInput type="visit" label="Costo" value={rating.cost} onChange={v => setRating(r => ({...r, cost: v}))} />
               </div>
             )}
           </div>

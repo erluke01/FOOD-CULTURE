@@ -53,9 +53,9 @@ export function PlaceCard({ place, onFavToggle }) {
               {place.category && (
                 <span className="tag-pill">{place.category}</span>
               )}
-              {place.tag && (
-                <span className="tag-pill bg-sky/10 text-sky">{place.tag}</span>
-              )}
+              {place.tags?.map(t => (
+                <span key={t} className="tag-pill bg-sky/10 text-sky">{t}</span>
+              ))}
             </div>
             <h3 className="font-display font-semibold text-base leading-tight truncate group-hover:text-terra transition-colors">
               {place.name}
@@ -86,13 +86,13 @@ export function PlaceCard({ place, onFavToggle }) {
             {lRating?.avg != null && (
               <div className="flex items-center gap-1 text-sky">
                 <span>🧑</span>
-                <StarDisplay score={lRating.avg} />
+                <StarDisplay score={lRating.avg} type={place.type} />
               </div>
             )}
             {aRating?.avg != null && (
               <div className="flex items-center gap-1 text-terra-light">
                 <span>👩</span>
-                <StarDisplay score={aRating.avg} />
+                <StarDisplay score={aRating.avg} type={place.type} />
               </div>
             )}
           </div>
