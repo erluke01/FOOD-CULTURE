@@ -1,16 +1,17 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { LogIn, LogOut, Heart, MapPin, ShieldCheck } from 'lucide-react'
+import { LogIn, LogOut, Heart, ShieldCheck } from 'lucide-react'
+import { Logo } from './Logo'
 
 export function Navbar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-paper-dark">
+    <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-paper-dark">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link to="/" className="font-display text-xl text-terra flex items-center gap-2">
-          <MapPin size={18} className="text-terra" />
+          <Logo size={26} />
           Wanderlist
         </Link>
 

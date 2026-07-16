@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
 import { MapPin, Plus, Trash2, Globe, Search } from 'lucide-react'
+import { Logo } from '../components/Logo'
 
 function CitySkeleton() {
   return (
@@ -60,9 +61,13 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Hero */}
       <div className="relative bg-ink overflow-hidden">
-        <div className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, #C45C26 0%, transparent 60%), radial-gradient(circle at 75% 20%, #5C7A5C 0%, transparent 50%)' }} />
+        <div className="absolute inset-0 opacity-[0.14]"
+          style={{ backgroundImage: 'radial-gradient(circle at 25% 40%, #C45C26 0%, transparent 55%), radial-gradient(circle at 78% 15%, #5C7A5C 0%, transparent 50%), radial-gradient(circle at 60% 85%, #D4A853 0%, transparent 45%)' }} />
         <div className="relative max-w-4xl mx-auto px-6 py-20 text-center">
+          <div className="relative inline-block mb-5">
+            <div className="absolute inset-0 blur-2xl opacity-40 bg-terra rounded-full scale-75" />
+            <Logo size={56} className="relative drop-shadow-lg" />
+          </div>
           <div className="inline-flex items-center gap-2 text-terra text-sm font-medium tracking-widest uppercase mb-4">
             <Globe size={14} /> Il nostro diario di viaggio
           </div>

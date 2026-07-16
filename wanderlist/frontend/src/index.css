@@ -19,15 +19,17 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-terra text-white px-5 py-2.5 rounded-xl font-medium text-sm
-           hover:bg-terra-dark transition-colors duration-150 disabled:opacity-50;
+    @apply bg-terra text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-sm shadow-terra/25
+           hover:bg-terra-dark hover:shadow-md hover:shadow-terra/30 active:scale-[0.97]
+           transition-all duration-200 ease-spring disabled:opacity-50 disabled:shadow-none;
   }
   .btn-ghost {
-    @apply bg-transparent border border-ink/20 text-ink px-4 py-2 rounded-xl
-           text-sm hover:bg-ink/5 transition-colors duration-150;
+    @apply bg-white/60 border border-ink/15 text-ink px-4 py-2 rounded-xl
+           text-sm hover:bg-ink/5 active:scale-[0.97] transition-all duration-200 ease-spring;
   }
   .card {
-    @apply bg-white rounded-2xl shadow-sm border border-paper-dark;
+    @apply bg-white rounded-2xl border border-paper-dark
+           shadow-[0_1px_2px_rgba(28,25,23,0.04),0_8px_20px_-8px_rgba(28,25,23,0.08)];
   }
   .tag-pill {
     @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs
@@ -36,18 +38,20 @@
   .input {
     @apply w-full border border-ink/15 rounded-xl px-3.5 py-2.5 text-sm
            bg-white focus:outline-none focus:ring-2 focus:ring-terra/30
-           focus:border-terra transition-all;
+           focus:border-terra transition-all duration-200;
   }
   .star-score {
     @apply font-display font-semibold text-terra;
   }
   .card-interactive {
-    @apply transition-all duration-150 active:scale-[0.98] hover:shadow-md hover:-translate-y-0.5;
+    @apply transition-all duration-200 ease-spring active:scale-[0.98]
+           hover:shadow-[0_2px_4px_rgba(28,25,23,0.05),0_16px_32px_-12px_rgba(28,25,23,0.14)]
+           hover:-translate-y-1;
   }
   .fab {
-    @apply fixed z-30 w-14 h-14 rounded-full bg-terra text-white shadow-lg shadow-terra/30
+    @apply fixed z-30 w-14 h-14 rounded-full bg-terra text-white shadow-lg shadow-terra/35
            flex items-center justify-center hover:bg-terra-dark active:scale-90
-           transition-all duration-150;
+           transition-all duration-200 ease-spring;
     /* clears the fixed mobile tab bar (~60px) plus a gap; tab bar is sm:hidden too */
     bottom: calc(4.5rem + env(safe-area-inset-bottom));
     right: 1.5rem;
@@ -57,6 +61,9 @@
   }
   .skeleton {
     @apply animate-pulse bg-ink/10 rounded-lg;
+  }
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/40;
   }
 }
 

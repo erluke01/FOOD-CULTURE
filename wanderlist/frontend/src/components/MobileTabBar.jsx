@@ -10,7 +10,7 @@ const tabs = [
 export function MobileTabBar() {
   return (
     <nav
-      className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-paper-dark flex"
+      className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/80 backdrop-blur-xl border-t border-paper-dark flex"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       {tabs.map(({ to, label, icon: Icon, end }) => (

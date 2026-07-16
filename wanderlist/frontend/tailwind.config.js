@@ -16,6 +16,9 @@ export default {
         gold:   { DEFAULT: '#D4A853', light: '#E8C97A' },
       },
       borderRadius: { xl: '1rem', '2xl': '1.5rem' },
+      transitionTimingFunction: {
+        spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      },
     }
   },
   plugins: []

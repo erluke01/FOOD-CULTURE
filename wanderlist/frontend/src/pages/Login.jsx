@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { LogIn, LogOut, UserPlus, MapPin, ShieldCheck, Heart } from 'lucide-react'
+import { LogIn, LogOut, UserPlus, ShieldCheck, Heart } from 'lucide-react'
+import { Logo } from '../components/Logo'
 
 function Profile() {
   const { user, logout } = useAuth()
@@ -71,8 +72,8 @@ export default function Login() {
     <div className="min-h-[calc(100vh-56px)] flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-terra/10 text-terra mb-3">
-            <MapPin size={22} />
+          <div className="inline-flex items-center justify-center w-14 h-14 mb-3">
+            <Logo size={48} />
           </div>
           <h1 className="font-display text-2xl font-semibold">
             {mode === 'login' ? 'Bentornati' : 'Crea un account'}
