@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="wanderlist">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/wanderlist.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
